@@ -11,6 +11,7 @@ globalThis.crypto = webcrypto;
 globalThis.navigator = {
     bluetooth: bluetooth,
 };
+
 // FIXME: replacing global fetch, so we can use an https agent to ignore self-signed ssl certs used in meshtastic linux native devices
 globalThis.fetch = async (url, options) => {
     return fetch(url, {
