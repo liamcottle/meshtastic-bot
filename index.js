@@ -29,6 +29,7 @@ process.on("uncaughtException", (e) => {
 // create ble client
 const client = new Client();
 const connection = client.createBleConnection();
+// const connection = client.createHttpConnection();
 
 // listen for received text messages
 connection.events.onMessagePacket.subscribe(async (data) => {
@@ -68,3 +69,9 @@ await connection.connect({
         ],
     },
 });
+
+// // connect to meshtastic device over http
+// await connection.connect({
+//     address: "10.1.0.249",
+//     tls: true,
+// });
