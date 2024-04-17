@@ -25,7 +25,7 @@ globalThis.fetch = async (url, options) => {
 // FIXME: ignoring uncaught exception, caused by "Packet x of type packet timed out"...
 process.on("uncaughtException", (e) => {
     console.error("Ignoring uncaught exception", e);
-})
+});
 
 // create ble client
 const client = new Client();
