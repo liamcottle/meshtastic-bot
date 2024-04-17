@@ -3,9 +3,17 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@meshtastic/js": "^2.3.2-0",
+    "webbluetooth": "^3.2.1"
+  },
+  "devDependencies": {
+    "tslib": "^2.6.2"
+  }
 }
