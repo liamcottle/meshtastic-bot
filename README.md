@@ -8,6 +8,8 @@ A very basic bot that connects to a Meshtastic device over Bluetooth and replies
 
 ## How to use?
 
+> NOTE: You will need to edit the bluetooth device name in `index.js` to match the device you want to run the bot from.
+
 ```
 npm install
 node index.js
