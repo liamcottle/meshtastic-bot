@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+import * as https from "https";
 import { webcrypto } from "node:crypto";
 import { bluetooth } from "webbluetooth";
 import {
@@ -8,6 +10,15 @@ import {
 globalThis.crypto = webcrypto;
 globalThis.navigator = {
     bluetooth: bluetooth,
+};
+// FIXME: replacing global fetch, so we can use an https agent to ignore self-signed ssl certs used in meshtastic linux native devices
+globalThis.fetch = async (url, options) => {
+    return fetch(url, {
+        ...options,
+        agent: new https.Agent({
+            rejectUnauthorized: false,
+        }),
+    });
 };
 
 // FIXME: ignoring uncaught exception, caused by "Packet x of type packet timed out"...
