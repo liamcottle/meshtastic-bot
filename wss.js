@@ -68,9 +68,9 @@ wss.on('connection', (ws) => {
 
             // handle ToRadio packets received from websocket clients
             if(data.type === "to_radio"){
-                if(data.raw){
+                if(data.protobuf){
                     // send ToRadio packet as raw protobuf to meshtasticd
-                    connection.sendRaw(Buffer.from(data.raw, "base64"));
+                    connection.sendRaw(Buffer.from(data.protobuf, "base64"));
                 } else if(data.json) {
                     // send ToRadio packet created from json to meshtasticd
                     connection.sendRaw(Protobuf.Mesh.ToRadio.fromJson(data.json).toBinary());
@@ -104,7 +104,7 @@ connection.events.onFromRadio.subscribe((fromRadio) => {
             client.send(JSON.stringify({
                 type: "from_radio",
                 // send raw protobuf as base64 to allow other clients to process any fields unknown to us
-                raw: Buffer.from(fromRadio.toBinary()).toString("base64"),
+                protobuf: Buffer.from(fromRadio.toBinary()).toString("base64"),
                 // send json version of protobuf to allow clients to easily use fields known to us without having to parse protobuf
                 json: fromRadio.toJson(),
             }));
