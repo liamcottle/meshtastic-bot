@@ -3,6 +3,8 @@ import * as https from "https";
 import { webcrypto } from "node:crypto";
 import { bluetooth } from "webbluetooth";
 import { WebSocket, WebSocketServer } from "ws";
+import commandLineArgs from "command-line-args";
+import commandLineUsage from "command-line-usage";
 import {
     Client, Types, Protobuf,
 } from "@meshtastic/js";
@@ -28,16 +30,64 @@ process.on("uncaughtException", (e) => {
     console.error("Ignoring uncaught exception", e);
 });
 
-const config = {
-    "meshtastic_host": "10.1.0.249",
-    "meshtastic_tls": true,
-    // if true, does not send packets to websocket clients if rxTime is before we connected to the device
-    "meshtastic_ignore_history": true,
-    "websocket_port": "8080",
-};
-
 // remember when we started
 const startupSeconds = Date.now() / 1000;
+
+const optionsList = [
+    {
+        name: 'help',
+        alias: 'h',
+        type: Boolean,
+        description: 'Display this usage guide.'
+    },
+    {
+        name: "meshtastic-host",
+        type: String,
+        description: "IP address of Meshtastic device (default: 127.0.0.1)",
+    },
+    {
+        name: "meshtastic-tls",
+        type: String,
+        description: "Use TLS when connecting to Meshtastic device (default: true)",
+    },
+    {
+        name: "websocket-port",
+        type: Number,
+        description: "Port to run Websocket Server on (default: 8080)",
+    },
+    {
+        name: "ignore-history",
+        type: String,
+        description: "When enabled, does not send packets to websocket clients if rxTime is before we connected to the device (default: true)",
+    },
+];
+
+// parse command line args
+const options = commandLineArgs(optionsList);
+
+// show help
+if(options.help){
+    const usage = commandLineUsage([
+        {
+            header: 'Meshtastic Websocket Proxy',
+            content: 'Proxies ToRadio and FromRadio packets between a single Meshtastic device and multiple WebSocket clients.',
+        },
+        {
+            header: 'Options',
+            optionList: optionsList,
+        },
+    ]);
+    console.log(usage);
+    process.exit(0);
+}
+
+// use provided config, or fallback to defaults
+const config = {
+    "meshtastic_host": options["meshtastic-host"] ?? "127.0.0.1",
+    "meshtastic_tls": options["meshtastic-tls"] ? options["meshtastic-tls"] === "true" : true,
+    "websocket_port": options["websocket-port"] ?? "8080",
+    "meshtastic_ignore_history": options["ignore-history"] ? options["ignore-history"] === "true" : true,
+};
 
 // create websocket server
 const wss = new WebSocketServer({
