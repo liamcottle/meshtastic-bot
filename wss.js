@@ -28,9 +28,15 @@ process.on("uncaughtException", (e) => {
     console.error("Ignoring uncaught exception", e);
 });
 
+const config = {
+    "meshtastic_host": "10.1.0.249",
+    "meshtastic_tls": true,
+    "websocket_port": "8080",
+};
+
 // create websocket server
 const wss = new WebSocketServer({
-    port: 8080,
+    port: config.websocket_port,
 });
 
 // create meshtastic http client
@@ -88,8 +94,8 @@ connection.events.onFromRadio.subscribe((fromRadio) => {
     });
 });
 
-// connect to meshtasticd running on self via http
+// connect to meshtastic device
 await connection.connect({
-    address: "127.0.0.1",
-    tls: true,
+    address: config.meshtastic_host,
+    tls: config.meshtastic_tls,
 });
