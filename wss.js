@@ -31,8 +31,13 @@ process.on("uncaughtException", (e) => {
 const config = {
     "meshtastic_host": "10.1.0.249",
     "meshtastic_tls": true,
+    // if true, does not send packets to websocket clients if rxTime is before we connected to the device
+    "meshtastic_ignore_history": true,
     "websocket_port": "8080",
 };
+
+// remember when we started
+const startupSeconds = Date.now() / 1000;
 
 // create websocket server
 const wss = new WebSocketServer({
@@ -79,8 +84,21 @@ wss.on('connection', (ws) => {
 
 });
 
-// forward fromRadio packets to all connected websocket clients
+// listen for FromRadio packets from meshtastic device
 connection.events.onFromRadio.subscribe((fromRadio) => {
+
+    // if enabled, ignore packets received by the radio before we started this script
+    if(config.meshtastic_ignore_history){
+        const fromRadioJson = fromRadio.toJson();
+        const rxTimeSeconds = fromRadioJson.packet?.rxTime;
+        if(rxTimeSeconds < startupSeconds){
+            const packetAge = Math.round(startupSeconds - rxTimeSeconds);
+            console.log(`Ignoring packet that is ${packetAge} seconds old...`);
+            return;
+        }
+    }
+
+    // forward fromRadio packets to all connected websocket clients
     wss.clients.forEach((client) => {
         if(client.readyState === WebSocket.OPEN){
             client.send(JSON.stringify({
@@ -92,6 +110,7 @@ connection.events.onFromRadio.subscribe((fromRadio) => {
             }));
         }
     });
+
 });
 
 // connect to meshtastic device
